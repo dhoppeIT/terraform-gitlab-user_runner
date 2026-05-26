@@ -28,7 +28,7 @@ variable "description" {
 variable "group_id" {
   type        = number
   default     = null
-  description = "The ID of the group that the runner is created in"
+  description = "The ID of the group that the runner is created in. Required if runner_type is group_type"
 }
 
 variable "locked" {
@@ -40,13 +40,23 @@ variable "locked" {
 variable "maintenance_note" {
   type        = string
   default     = null
-  description = "Free-form maintenance notes for the runner"
+  description = "Free-form maintenance notes for the runner (max 1024 characters)"
+
+  validation {
+    condition     = var.maintenance_note == null || length(var.maintenance_note) <= 1024
+    error_message = "The maintenance_note must be 1024 characters or fewer."
+  }
 }
 
 variable "maximum_timeout" {
   type        = number
   default     = null
-  description = "Maximum timeout that limits the amount of time (in seconds) that runners can run jobs"
+  description = "Maximum timeout that limits the amount of time (in seconds) that runners can run jobs. Must be at least 600 (10 minutes)"
+
+  validation {
+    condition     = var.maximum_timeout == null || var.maximum_timeout >= 600
+    error_message = "The maximum_timeout must be at least 600 (10 minutes)."
+  }
 }
 
 variable "paused" {
@@ -58,11 +68,11 @@ variable "paused" {
 variable "project_id" {
   type        = number
   default     = null
-  description = "The ID of the project that the runner is created in"
+  description = "The ID of the project that the runner is created in. Required if runner_type is project_type"
 }
 
 variable "tag_list" {
-  type        = list(string)
+  type        = set(string)
   default     = []
   description = "A list of runner tags"
 }
